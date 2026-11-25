@@ -1,16 +1,98 @@
-<DOCTYPE HTML?>
- <html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>JAVA CODE</title>     
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe — Java Code & Play</title>
+<style>
+:root{--bg:#0b1224;--panel:#17223b;--panel2:#202e4d;--cyan:#22d3ee;--purple:#a78bfa;--text:#edf4ff;--muted:#a7b5ce;--green:#34d399}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#1b2850 0,#0b1224 55%);color:var(--text);font-family:Arial,sans-serif;min-height:100vh;padding:28px 16px}
+main{max-width:960px;margin:auto}
+header{text-align:center;margin:10px 0 26px}
+h1{margin:0;color:var(--cyan);font-size:clamp(30px,6vw,48px);letter-spacing:2px}
+header p{color:var(--muted);margin:10px 0 0}
+.tabs{display:flex;gap:10px;justify-content:center;margin:24px 0}
+.tab{border:1px solid #405174;background:var(--panel);color:var(--text);padding:12px 22px;border-radius:12px;font-weight:bold;cursor:pointer}
+.tab.active{background:var(--cyan);color:#071321;border-color:var(--cyan)}
+.panel{background:rgba(23,34,59,.96);border:1px solid #354767;border-radius:18px;padding:22px;box-shadow:0 18px 50px #0005}
+.hidden{display:none!important}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar h2{margin:0;font-size:20px}
+button{font:inherit}
+.action{border:0;border-radius:10px;padding:11px 16px;background:var(--cyan);color:#071321;font-weight:bold;cursor:pointer}
+.action.secondary{background:var(--purple);color:#130d24}
+.action:disabled{opacity:.5;cursor:not-allowed}
+pre{margin:0;max-height:65vh;overflow:auto;background:#080e1c;color:#d8e5fa;padding:18px;border-radius:12px;border:1px solid #293955;white-space:pre;tab-size:4}
+code{font:13px/1.55 Consolas,Monaco,monospace}
+.note{color:var(--muted);font-size:13px;line-height:1.5;margin:14px 0 0}
+.game-wrap{max-width:600px;margin:auto;text-align:center}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid #526483;background:#0d172b;color:var(--text);font-size:15px;min-width:0}
+label{display:block;text-align:left;color:var(--muted);font-size:12px;margin-bottom:6px}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0}
+.scorebox{background:#0d172b;border:1px solid #344663;border-radius:12px;padding:12px 6px}
+.scorebox strong{display:block;color:var(--cyan);font-size:21px;margin-top:5px}
+.scorebox span{color:var(--muted);font-size:12px}
+.status{font-size:18px;font-weight:bold;min-height:28px;margin:16px 0;color:var(--cyan)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:390px;margin:0 auto 18px}
+.cell{aspect-ratio:1;border:1px solid #405578;border-radius:14px;background:linear-gradient(145deg,#243454,#17243d);color:var(--cyan);font-size:clamp(42px,10vw,64px);font-weight:bold;cursor:pointer}
+.cell.o{color:var(--purple)}
+.cell:disabled{cursor:default;opacity:1}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.rules{color:var(--muted);font-size:13px;line-height:1.6;margin-top:16px}
+footer{text-align:center;color:#8090ad;font-size:12px;margin:22px 0}
+@media(max-width:520px){body{padding:18px 10px}.panel{padding:15px}.names{grid-template-columns:1fr}.tabs{margin:16px 0}.tab{flex:1;padding:11px 8px}.scorebox{padding:10px 3px}}
+</style>
 </head>
 <body>
-<h1>TIC.TAC.TOE</h1>
-<p>HERE IS THE READY TO PASTE CODE FOR THE TICTACTOE GAME</p>
-<h2>HERE IS THE CODE</h2>
-<p>package com.mycompany.tictactoe;
+<main>
+<header>
+  <h1>TIC TAC TOE</h1>
+  <p>CBSE IT 802 Java project · Copy the Java source or play a browser version</p>
+</header>
 
+<div class="tabs" role="tablist" aria-label="Choose view">
+  <button class="tab active" id="codeTab" type="button" role="tab" aria-selected="true">Java Source Code</button>
+  <button class="tab" id="playTab" type="button" role="tab" aria-selected="false">Play Game</button>
+</div>
 
-   
+<section class="panel" id="codePanel">
+  <div class="toolbar">
+    <h2>Ready-to-copy Java code</h2>
+    <button class="action" id="copyButton" type="button">Copy Java Code</button>
+  </div>
+  <pre><code id="javaCode"></code></pre>
+  <p class="note">NetBeans tip: paste this source into <b>TicTacToe.java</b>. If your project uses a different package, change the first line to match your package name. This is Java source code; the browser Play Game tab is a separate HTML/JavaScript version.</p>
+</section>
+
+<section class="panel hidden" id="playPanel">
+  <div class="game-wrap">
+    <h2 style="margin:0 0 8px;color:var(--cyan)">Local Multiplayer</h2>
+    <p class="note" style="margin:0 0 18px">Two players take turns on the same device.</p>
+    <div class="names">
+      <div><label for="playerX">PLAYER X NAME</label><input id="playerX" maxlength="18" value="Player 1"></div>
+      <div><label for="playerO">PLAYER O NAME</label><input id="playerO" maxlength="18" value="Player 2"></div>
+    </div>
+    <div class="scoreboard">
+      <div class="scorebox"><span id="labelX">Player 1 (X)</span><strong id="winsX">0</strong></div>
+      <div class="scorebox"><span id="labelO">Player 2 (O)</span><strong id="winsO">0</strong></div>
+      <div class="scorebox"><span>Draws</span><strong id="draws">0</strong></div>
+    </div>
+    <div class="status" id="status" aria-live="polite">Player 1's turn (X)</div>
+    <div class="board" id="board" aria-label="Tic Tac Toe board"></div>
+    <div class="controls">
+      <button class="action" id="newGame" type="button">New Game</button>
+      <button class="action secondary" id="resetScores" type="button">Reset Scores</button>
+    </div>
+    <p class="rules">First player to make a line of three wins. Lines can be horizontal, vertical or diagonal. If all nine squares are filled without a winner, the round is a draw. New Game keeps the scores; Reset Scores clears them.</p>
+  </div>
+</section>
+<footer>Made with Java Swing source code and a browser-playable demonstration.</footer>
+</main>
+
+<script>
+const javaSource = String.raw`package com.mycompany.tictactoe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -189,7 +271,136 @@ public class TicTacToe extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(TicTacToe::new);
     }
+}`;
+
+document.getElementById("javaCode").textContent = javaSource;
+
+const codeTab = document.getElementById("codeTab");
+const playTab = document.getElementById("playTab");
+const codePanel = document.getElementById("codePanel");
+const playPanel = document.getElementById("playPanel");
+
+function showTab(which) {
+  const isCode = which === "code";
+  codePanel.classList.toggle("hidden", !isCode);
+  playPanel.classList.toggle("hidden", isCode);
+  codeTab.classList.toggle("active", isCode);
+  playTab.classList.toggle("active", !isCode);
+  codeTab.setAttribute("aria-selected", String(isCode));
+  playTab.setAttribute("aria-selected", String(!isCode));
 }
-</p>
-</body>   
- </html> 
+codeTab.addEventListener("click", () => showTab("code"));
+playTab.addEventListener("click", () => showTab("play"));
+
+document.getElementById("copyButton").addEventListener("click", async () => {
+  const button = document.getElementById("copyButton");
+  try {
+    await navigator.clipboard.writeText(javaSource);
+    button.textContent = "Copied!";
+  } catch (err) {
+    const area = document.createElement("textarea");
+    area.value = javaSource;
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    button.textContent = ok ? "Copied!" : "Select code and copy";
+  }
+  setTimeout(() => button.textContent = "Copy Java Code", 1800);
+});
+
+// Browser-playable Tic Tac Toe game
+const cells = [];
+const boardElement = document.getElementById("board");
+let gameBoard = Array(9).fill("");
+let current = "X";
+let finished = false;
+let scores = {X:0, O:0, draw:0};
+
+for (let i=0; i<9; i++) {
+  const cell = document.createElement("button");
+  cell.type = "button";
+  cell.className = "cell";
+  cell.setAttribute("aria-label", "Square " + (i+1));
+  cell.addEventListener("click", () => makeMove(i));
+  boardElement.appendChild(cell);
+  cells.push(cell);
+}
+
+function names() {
+  const x = document.getElementById("playerX").value.trim() || "Player 1";
+  const o = document.getElementById("playerO").value.trim() || "Player 2";
+  return {X:x, O:o};
+}
+function updateLabels() {
+  const n = names();
+  document.getElementById("labelX").textContent = n.X + " (X)";
+  document.getElementById("labelO").textContent = n.O + " (O)";
+  document.getElementById("winsX").textContent = scores.X;
+  document.getElementById("winsO").textContent = scores.O;
+  document.getElementById("draws").textContent = scores.draw;
+}
+function setStatus(message) {
+  document.getElementById("status").textContent = message;
+}
+function makeMove(i) {
+  if (finished || gameBoard[i]) return;
+  gameBoard[i] = current;
+  cells[i].textContent = current;
+  cells[i].classList.toggle("o", current === "O");
+  cells[i].disabled = true;
+
+  if (hasWon(current)) {
+    finished = true;
+    scores[current]++;
+    updateLabels();
+    setStatus(names()[current] + " wins!");
+    cells.forEach(c => c.disabled = true);
+  } else if (gameBoard.every(Boolean)) {
+    finished = true;
+    scores.draw++;
+    updateLabels();
+    setStatus("It's a draw!");
+  } else {
+    current = current === "X" ? "O" : "X";
+    setStatus(names()[current] + "'s turn (" + current + ")");
+  }
+}
+function hasWon(mark) {
+  const lines = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+  return lines.some(line => line.every(i => gameBoard[i] === mark));
+}
+function newGame() {
+  gameBoard = Array(9).fill("");
+  current = "X";
+  finished = false;
+  cells.forEach(c => {
+    c.textContent = "";
+    c.disabled = false;
+    c.classList.remove("o");
+  });
+  setStatus(names().X + "'s turn (X)");
+}
+document.getElementById("newGame").addEventListener("click", newGame);
+document.getElementById("resetScores").addEventListener("click", () => {
+  scores = {X:0, O:0, draw:0};
+  updateLabels();
+  newGame();
+});
+document.getElementById("playerX").addEventListener("input", () => {
+  updateLabels();
+  if (!finished && current === "X") setStatus(names().X + "'s turn (X)");
+});
+document.getElementById("playerO").addEventListener("input", () => {
+  updateLabels();
+  if (!finished && current === "O") setStatus(names().O + "'s turn (O)");
+});
+updateLabels();
+newGame();
+</script>
+</body>
+</html>
