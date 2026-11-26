@@ -16,7 +16,12 @@ header p{color:var(--muted);margin:10px 0 0}
 .tab{border:1px solid #405174;background:var(--panel);color:var(--text);padding:12px 22px;border-radius:12px;font-weight:bold;cursor:pointer}
 .tab.active{background:var(--cyan);color:#071321;border-color:var(--cyan)}
 .panel{background:rgba(23,34,59,.96);border:1px solid #354767;border-radius:18px;padding:22px;box-shadow:0 18px 50px #0005}
-.hidden{display:none!important}
+.hidden{display:none!important}\n
+.login-wrap{max-width:390px;margin:12px auto;padding:24px;background:#0d172b;border:1px solid #405578;border-radius:16px}
+.login-wrap h2{margin:0 0 8px;color:var(--cyan);text-align:center}
+.login-wrap form{margin-top:20px}
+.login-error{color:#fca5a5;font-size:13px;min-height:18px;margin:10px 0 0}
+
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .toolbar h2{margin:0;font-size:20px}
 button{font:inherit}
@@ -58,12 +63,26 @@ footer{text-align:center;color:#8090ad;font-size:12px;margin:22px 0}
 </div>
 
 <section class="panel" id="codePanel">
-  <div class="toolbar">
-    <h2>Ready-to-copy Java code</h2>
-    <button class="action" id="copyButton" type="button">Copy Java Code</button>
+  <div id="sourceLogin" class="login-wrap">
+    <h2>Administrator Login</h2>
+    <p class="note">Sign in to unlock the Java source code and copy function.</p>
+    <form id="loginForm" autocomplete="off">
+      <label for="loginUsername">USERNAME</label>
+      <input id="loginUsername" name="username" type="text" autocomplete="username" required>
+      <label for="loginPassword" style="margin-top:12px">PASSWORD</label>
+      <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+      <button class="action" id="loginButton" type="submit" style="width:100%;margin-top:16px">Unlock Java Source</button>
+      <p id="loginError" class="login-error" role="alert" aria-live="polite"></p>
+    </form>
   </div>
-  <pre><code id="javaCode"></code></pre>
-  <p class="note">NetBeans tip: paste this source into <b>TicTacToe.java</b>. If your project uses a different package, change the first line to match your package name. This is Java source code; the browser Play Game tab is a separate HTML/JavaScript version.</p>
+  <div id="sourceContent" class="hidden">
+    <div class="toolbar">
+      <h2>Ready-to-copy Java code</h2>
+      <button class="action" id="copyButton" type="button">Copy Java Code</button>
+    </div>
+    <pre><code id="javaCode"></code></pre>
+    <p class="note">NetBeans tip: paste this source into <b>TicTacToe.java</b>. If your project uses a different package, change the first line to match your package name. This is Java source code; the browser Play Game tab is a separate HTML/JavaScript version.</p>
+  </div>
 </section>
 
 <section class="panel hidden" id="playPanel">
@@ -92,188 +111,38 @@ footer{text-align:center;color:#8090ad;font-size:12px;margin:22px 0}
 </main>
 
 <script>
-const javaSource = String.raw`package com.mycompany.tictactoe;
+// The Java source is encrypted at rest in this HTML file.
+// It is decrypted in memory only after the correct username and password are entered.
+const encryptedJavaSource = {
+  salt: "amYvPEsmjG10/28jrqqSLQ==",
+  iv: "CEbUZ6lds83FN+Cf",
+  data: "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"
+};
+let javaSource = "";
 
-import javax.swing.*;
-import java.awt.*;
-
-public class TicTacToe extends JFrame {
-
-    String p1, p2;
-    char turn = 'X';
-    char[] board = new char[9];
-
-    int xWins = 0, oWins = 0, draws = 0;
-
-    JButton[] buttons = new JButton[9];
-    JLabel status = new JLabel("", SwingConstants.CENTER);
-    JLabel score = new JLabel("", SwingConstants.CENTER);
-
-    Color bg = new Color(17, 24, 39);
-    Color cyan = new Color(34, 211, 238);
-    Color purple = new Color(167, 139, 250);
-
-    TicTacToe() {
-        p1 = JOptionPane.showInputDialog("Enter Player 1 name:");
-        if (p1 == null || p1.trim().isEmpty()) p1 = "Player 1";
-
-        p2 = JOptionPane.showInputDialog("Enter Player 2 name:");
-        if (p2 == null || p2.trim().isEmpty()) p2 = "Player 2";
-
-        setTitle("Tic Tac Toe - Multiplayer");
-        setSize(450, 570);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(bg);
-        setLayout(new BorderLayout(10, 10));
-
-        JLabel title = new JLabel("TIC TAC TOE", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 30));
-        title.setForeground(cyan);
-        title.setBorder(BorderFactory.createEmptyBorder(20, 5, 10, 5));
-        add(title, BorderLayout.NORTH);
-
-        JPanel center = new JPanel(new GridLayout(3, 3, 8, 8));
-        center.setBackground(bg);
-        center.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-
-        for (int i = 0; i < 9; i++) {
-            final int index = i;
-            buttons[i] = new JButton("");
-            buttons[i].setFont(new Font("Arial", Font.BOLD, 55));
-            buttons[i].setBackground(new Color(31, 41, 65));
-            buttons[i].setForeground(cyan);
-            buttons[i].setFocusPainted(false);
-            buttons[i].addActionListener(e -> play(index));
-            center.add(buttons[i]);
-        }
-
-        add(center, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel(new GridLayout(4, 1, 5, 8));
-        bottom.setBackground(bg);
-        bottom.setBorder(BorderFactory.createEmptyBorder(5, 20, 20, 20));
-
-        status.setFont(new Font("Arial", Font.BOLD, 17));
-        status.setForeground(Color.WHITE);
-
-        score.setFont(new Font("Arial", Font.BOLD, 15));
-        score.setForeground(cyan);
-
-        JButton newGame = new JButton("NEW GAME");
-        JButton reset = new JButton("RESET SCORES");
-
-        newGame.addActionListener(e -> resetBoard());
-        reset.addActionListener(e -> {
-            xWins = 0;
-            oWins = 0;
-            draws = 0;
-            updateScore();
-            resetBoard();
-        });
-
-        bottom.add(status);
-        bottom.add(score);
-        bottom.add(newGame);
-        bottom.add(reset);
-
-        add(bottom, BorderLayout.SOUTH);
-
-        updateScore();
-        resetBoard();
-        setVisible(true);
-    }
-
-    void play(int i) {
-        if (board[i] != '\0') return;
-
-        board[i] = turn;
-        buttons[i].setText(String.valueOf(turn));
-
-        buttons[i].setForeground(turn == 'X' ? cyan : purple);
-        buttons[i].setEnabled(false);
-
-        if (checkWin()) {
-            String winner = turn == 'X' ? p1 : p2;
-
-            if (turn == 'X') xWins++;
-            else oWins++;
-
-            status.setText(winner + " WINS!");
-            updateScore();
-            endGame();
-        }
-        else if (isDraw()) {
-            draws++;
-            status.setText("IT'S A DRAW!");
-            updateScore();
-            endGame();
-        }
-        else {
-            turn = (turn == 'X') ? 'O' : 'X';
-            status.setText(
-                (turn == 'X' ? p1 : p2) + "'s TURN (" + turn + ")"
-            );
-        }
-    }
-
-    boolean checkWin() {
-        int[][] lines = {
-            {0,1,2}, {3,4,5}, {6,7,8},
-            {0,3,6}, {1,4,7}, {2,5,8},
-            {0,4,8}, {2,4,6}
-        };
-
-        for (int[] line : lines) {
-            if (board[line[0]] != '\0' &&
-                board[line[0]] == board[line[1]] &&
-                board[line[1]] == board[line[2]]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    boolean isDraw() {
-        for (char c : board) {
-            if (c == '\0') return false;
-        }
-        return true;
-    }
-
-    void endGame() {
-        for (JButton b : buttons) {
-            b.setEnabled(false);
-        }
-    }
-
-    void resetBoard() {
-        turn = 'X';
-        board = new char[9];
-
-        for (JButton b : buttons) {
-            b.setText("");
-            b.setEnabled(true);
-        }
-
-        status.setText(p1 + "'s TURN (X)");
-    }
-
-    void updateScore() {
-        score.setText(
-            p1 + " (X): " + xWins +
-            "     |     " +
-            p2 + " (O): " + oWins +
-            "     |     Draws: " + draws
-        );
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(TicTacToe::new);
-    }
-}`;
-
-document.getElementById("javaCode").textContent = javaSource;
+async function unlockJavaSource(username, password) {
+  if (username !== "Admin") throw new Error("Incorrect username or password.");
+  const bytes = value => Uint8Array.from(atob(value), c => c.charCodeAt(0));
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]
+  );
+  const key = await crypto.subtle.deriveKey(
+    {name:"PBKDF2", salt:bytes(encryptedJavaSource.salt), iterations:310000, hash:"SHA-256"},
+    keyMaterial,
+    {name:"AES-GCM", length:256},
+    false,
+    ["decrypt"]
+  );
+  const plain = await crypto.subtle.decrypt(
+    {name:"AES-GCM", iv:bytes(encryptedJavaSource.iv)},
+    key,
+    bytes(encryptedJavaSource.data)
+  );
+  javaSource = new TextDecoder().decode(plain);
+  document.getElementById("javaCode").textContent = javaSource;
+  document.getElementById("sourceLogin").classList.add("hidden");
+  document.getElementById("sourceContent").classList.remove("hidden");
+}
 
 const codeTab = document.getElementById("codeTab");
 const playTab = document.getElementById("playTab");
@@ -291,6 +160,29 @@ function showTab(which) {
 }
 codeTab.addEventListener("click", () => showTab("code"));
 playTab.addEventListener("click", () => showTab("play"));
+
+// Authenticate locally and decrypt the Java source only after a successful login.
+// This is client-side protection, not a substitute for server-side authorization.
+document.getElementById("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = document.getElementById("loginButton");
+  const error = document.getElementById("loginError");
+  button.disabled = true;
+  button.textContent = "Checking...";
+  error.textContent = "";
+  try {
+    await unlockJavaSource(
+      document.getElementById("loginUsername").value,
+      document.getElementById("loginPassword").value
+    );
+  } catch (err) {
+    error.textContent = "Incorrect username or password.";
+    document.getElementById("loginPassword").value = "";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Unlock Java Source";
+  }
+});
 
 document.getElementById("copyButton").addEventListener("click", async () => {
   const button = document.getElementById("copyButton");
